@@ -1,25 +1,29 @@
 import crypto from "node:crypto";
 import { Resend } from "resend";
 
-export const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? "http://localhost:8080";
 const RATE_LIMIT_WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS ?? "60000");
 const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX ?? "20");
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
-export const resend = new Resend(RESEND_API_KEY);
-
+export const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 export const ALERT_FROM_EMAIL = process.env.ALERT_FROM_EMAIL;
 export const ALERT_TO_EMAIL = process.env.ALERT_TO_EMAIL;
 
 export function buildCorsHeaders(origin?: string) {
-  const allowedOrigin = origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN;
+  const normalizedOrigin = origin?.replace(/\/$/, "");
+  const allowedOrigin =
+    normalizedOrigin && isAllowedOrigin(normalizedOrigin)
+      ? normalizedOrigin
+      : "";
+
   return {
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    ...(allowedOrigin ? { "Access-Control-Allow-Origin": allowedOrigin } : {}),
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Auth-Token",
-    Vary: "Origin",
+    "Access-Control-Expose-Headers": "X-Request-Id",
+    "Vary": "Origin",
   };
 }
 
@@ -31,6 +35,22 @@ export function getClientIp(req: Request) {
   const forwardedFor = req.headers.get("x-forwarded-for");
   if (forwardedFor) return forwardedFor.split(",")[0].trim();
   return "unknown";
+}
+
+export function getAllowedOrigins(): Set<string> {
+  const raw = process.env.ALLOWED_ORIGINS ?? "";
+  return new Set(
+    raw
+      .split(",")
+      .map((origin) => origin.trim().replace(/\/$/, ""))
+      .filter(Boolean)
+  );
+}
+
+export function isAllowedOrigin(origin?: string | null): boolean {
+  if (!origin) return false;
+  const normalized = origin.replace(/\/$/, "");
+  return getAllowedOrigins().has(normalized);
 }
 
 export function checkRateLimit(key: string) {

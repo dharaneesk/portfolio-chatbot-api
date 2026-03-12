@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express, { type Request as ExpressRequest, type Response as ExpressResponse } from "express";
-import { POST, OPTIONS } from "./api/chat.js";
+import { GET, POST, OPTIONS } from "./api/chat.js";
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -65,6 +65,19 @@ app.options("/api/chat", async (req, res) => {
         await sendWebResponse(webRes, res);
     } catch (error) {
         console.error("OPTIONS /api/chat failed:", error);
+        res.status(500).json({
+            error: error instanceof Error ? error.message : "Unknown error",
+        });
+    }
+});
+
+app.get("/api/chat", async (req, res) => {
+    try {
+        const webReq = toWebRequest(req);
+        const webRes = await GET(webReq);
+        await sendWebResponse(webRes, res);
+    } catch (error) {
+        console.error("GET /api/chat failed:", error);
         res.status(500).json({
             error: error instanceof Error ? error.message : "Unknown error",
         });

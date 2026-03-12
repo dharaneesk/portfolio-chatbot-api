@@ -7,28 +7,38 @@ import {
   getClientIp,
   checkRateLimit,
   sendFailureAlert,
+  isAllowedOrigin,
 } from "./utils.js";
 
 export const runtime = "nodejs";
 const MODEL = "gemini-3.1-flash-lite-preview";
 
 export async function OPTIONS(req: Request) {
-  const origin = req.headers.get("origin") ?? undefined;
+  const origin = req.headers.get("origin");
+
+  if (!isAllowedOrigin(origin)) {
+    return new Response(null, { status: 403 });
+  }
+
   return new Response(null, {
     status: 204,
-    headers: buildCorsHeaders(origin),
+    headers: buildCorsHeaders(origin ?? undefined),
   });
 }
 
 export async function GET(req: Request) {
-  const origin = req.headers.get("origin") ?? undefined;
-  return new Response(JSON.stringify({ message: "Portfolio Chatbot API is online" }), {
-    status: 200,
-    headers: {
-      "Content-Type": "application/json",
-      ...buildCorsHeaders(origin),
-    },
-  });
+  const origin = req.headers.get("origin");
+
+  return new Response(
+    JSON.stringify({ message: "Portfolio Chatbot API is online" }),
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        ...buildCorsHeaders(origin ?? undefined),
+      },
+    }
+  );
 }
 
 // Allow streaming responses up to 30 seconds
@@ -42,6 +52,13 @@ export async function POST(req: Request) {
 
   const rateLimitKey = `${clientIp}:${origin ?? "no-origin"}`;
   const rateLimit = checkRateLimit(rateLimitKey);
+
+  if (!isAllowedOrigin(origin)) {
+    return new Response(JSON.stringify({ error: "Forbidden origin" }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   if (!rateLimit.allowed) {
     return new Response(
