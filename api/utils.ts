@@ -21,9 +21,9 @@ export function buildCorsHeaders(origin?: string) {
   return {
     ...(allowedOrigin ? { "Access-Control-Allow-Origin": allowedOrigin } : {}),
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Auth-Token",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Auth-Token, User-Agent",
     "Access-Control-Expose-Headers": "X-Request-Id",
-    "Vary": "Origin",
+    "Vary": "Origin, Access-Control-Request-Headers",
   };
 }
 

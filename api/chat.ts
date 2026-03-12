@@ -54,7 +54,7 @@ export async function POST(req: Request) {
   const rateLimit = checkRateLimit(rateLimitKey);
 
   if (!isAllowedOrigin(origin)) {
-    return new Response(JSON.stringify({ error: "Forbidden origin" }), {
+    return new Response(JSON.stringify({ error: "Forbidden Request" }), {
       status: 403,
       headers: { "Content-Type": "application/json" },
     });
@@ -158,6 +158,8 @@ export async function POST(req: Request) {
       headers: {
         ...buildCorsHeaders(origin),
         "X-Request-Id": requestId,
+        "Content-Type": "application/octet-stream",
+        "Content-Encoding": "none",
       },
       onError(error) {
 
