@@ -1,0 +1,26 @@
+{
+  "name": "portfolio-chatbot-api",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "serve": "npx vercel dev --local",
+    "start": "npx vercel dev",
+    "debug:server": "tsx debug-server.ts",
+    "debug:server:inspect": "node --inspect-brk ./node_modules/.bin/tsx debug-server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^3.0.43",
+    "ai": "^6.0.116",
+    "resend": "^6.9.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^20.0.0",
+    "dotenv": "^17.3.1",
+    "express": "^4.21.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.0.0"
+  }
+}
