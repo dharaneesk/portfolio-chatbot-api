@@ -1,6 +1,6 @@
 import { streamText, convertToModelMessages, type UIMessage } from "ai";
 import { google } from "@ai-sdk/google";
-import { classifyUserQuery, buildPortfolioContext } from "../src/utils/chatHelpers";
+import { classifyUserQuery, buildPortfolioContext } from "../src/utils/chatHelpers.js";
 import {
   buildCorsHeaders,
   generateRequestId,

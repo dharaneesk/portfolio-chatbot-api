@@ -1,4 +1,4 @@
-import { resumeData } from "../data/resumeContext";
+import { resumeData } from "../data/resumeContext.js";
 
 // Pre-compiled regex patterns for query classification
 const PATTERNS = {
