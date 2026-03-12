@@ -7,7 +7,7 @@ import {
   getClientIp,
   checkRateLimit,
   sendFailureAlert,
-} from "./utils";
+} from "./utils.js";
 
 export const runtime = "nodejs";
 const MODEL = "gemini-3.1-flash-lite-preview";
