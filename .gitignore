@@ -45,4 +45,5 @@ desktop.ini
 .eslintcache
 .env*.local
 
-debug-server.ts
+*.js
+*.js.map
