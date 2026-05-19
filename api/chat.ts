@@ -11,7 +11,6 @@ import {
 } from "./utils.js";
 
 export const runtime = "nodejs";
-const MODEL = "gemini-3.1-flash-lite-preview";
 
 export async function OPTIONS(req: Request) {
   const origin = req.headers.get("origin");
@@ -75,9 +74,18 @@ export async function POST(req: Request) {
   }
 
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const model = process.env.AI_MODEL_ID;
+  const temperature = process.env.AI_TEMPERATURE;
 
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "API Key not found. Please add GOOGLE_GENERATIVE_AI_API_KEY to .env.local and restart server." }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", ...buildCorsHeaders(origin) }
+    });
+  }
+
+  if (!model) {
+    return new Response(JSON.stringify({ error: "AI Model ID not found. Please add AI_MODEL_ID to .env and restart server." }), {
       status: 500,
       headers: { "Content-Type": "application/json", ...buildCorsHeaders(origin) }
     });
@@ -137,10 +145,10 @@ export async function POST(req: Request) {
     const modelMessages = await convertToModelMessages(recentMessages);
 
     const result = streamText({
-      model: google(MODEL),
+      model: google(model as Parameters<typeof google>[0]),
       system: systemPrompt,
       messages: modelMessages,
-      temperature: 0.3,
+      temperature: Number(temperature),
       maxOutputTokens: 300,
       onFinish(event) {
         console.log(JSON.stringify({
